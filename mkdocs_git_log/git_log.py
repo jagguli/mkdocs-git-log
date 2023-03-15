@@ -1,17 +1,19 @@
 from mkdocs.plugins import BasePlugin
 import os
 import subprocess
+import logging
+
+logger = logging.getLogger(__file__)
 
 
 class GitLogPlugin(BasePlugin):
     def on_page_context(self, context, page, config, nav, **kwargs):
-        context["git_page_logs"] = git_log(page)
+        logger.info(f"generating gitlog for {page}")
+        context["git_page_logs"] = git_log(page, config["docs_dir"])
         return context
 
 
-def git_log(page):
-    print(os.getcwd())
-    print(page.file.src_path)
+def git_log(page, docs_dir):
     cmd = [
         "git",
         "log",
@@ -42,4 +44,14 @@ def git_log(page):
             )
         )
     table_html = "<table>{}</table>".format("\n".join(table_rows))
-    return table_html
+
+    return f"""
+<details>
+  <summary>
+    Git log for current page [{page.file.src_path}]
+  </summary>
+  <p>
+    {table_html}
+  </p>
+</details>
+"""
