@@ -37,12 +37,17 @@ def git_log(page, docs_dir):
         "<tr><th>Hash</th><th>Author</th><th>Date</th><th>Message</th></tr>"
     ]
     for line in log_output:
+        if not line:
+            continue
         parts = line.split(",")
-        table_rows.append(
-            "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(
-                *parts
+        try:
+            table_rows.append(
+                "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(
+                    *parts
+                )
             )
-        )
+        except Exception:
+            logger.error(f"Error parsing git log output: {line}")
     table_html = "<table>{}</table>".format("\n".join(table_rows))
 
     return f"""
